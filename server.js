@@ -37,6 +37,24 @@ server.post("/api/register", async (req, res) => {
   }
 });
 
+server.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    if (!username || !password) {
+      res.status(400).json({ message: "Must provide username and password" });
+    } else {
+      const user = await Users.findBy({ username });
+      if (user && bcrypt.compareSync(password, user.password)) {
+        res.status(200).json({ message: `Welcome ${user.username}` });
+      } else {
+        res.status(401).json({ message: "Invalid Credentials" });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error logging in user" });
+  }
+});
+
 server.get("/", async (req, res) => {
   res.send("welcome to auth API");
 });
