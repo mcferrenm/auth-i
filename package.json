@@ -7,6 +7,7 @@
     "server": "nodemon index.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
     "helmet": "^3.15.1",
     "knex": "^0.16.3",
