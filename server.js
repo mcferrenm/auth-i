@@ -74,7 +74,12 @@ server.post("/api/login", async (req, res) => {
     } else {
       const user = await Users.findBy({ username });
       if (user && bcrypt.compareSync(password, user.password)) {
-        res.status(200).json({ message: `Welcome ${user.username}` });
+        res
+          .status(200)
+          .json({
+            message: `Welcome ${user.username}`,
+            jwt: "987asdhjk12389dddd"
+          });
       } else {
         res.status(401).json({ message: "Invalid Credentials" });
       }

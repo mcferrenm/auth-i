@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link, withRouter } from "react-router-dom";
 import axios from "axios";
 
 class Login extends Component {
@@ -22,8 +23,11 @@ class Login extends Component {
         password
       });
       console.log(user.data);
-      this.setState({ user: user.data, username: "", password: "" });
+      localStorage.setItem("jwt", user.data.jwt);
 
+      this.props.history.push("/");
+
+      this.setState({ user: user.data, username: "", password: "" });
     } catch (error) {
       this.setState(error);
     }
@@ -51,9 +55,10 @@ class Login extends Component {
           />
           <button onClick={this.handleLogin}>Submit</button>
         </form>
+        <Link to="/register">Need to sign up?</Link>
       </div>
     );
   }
 }
 
-export default Login;
+export default withRouter(Login);
