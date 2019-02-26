@@ -2,31 +2,50 @@ import React, { Component } from "react";
 import axios from "axios";
 
 class Dashboard extends Component {
-  state = { users: [], error: null };
+  signal = axios.CancelToken.source();
+
+  state = { users: [], error: null, isLoading: false };
+
   async componentDidMount() {
     try {
-      const users = await axios.get(
-        "http://localhost:8000/api/restricted/users",
-        { headers: { username: "Max", password: "password" } }
+      this.setState({ isLoading: true });
+
+      // move this to axios config module
+      const usersList = axios.create({
+        withCredentials: true
+      });
+
+      const users = await usersList.get(
+        "http://localhost:4000/api/restricted/users",
+        { cancelToken: this.signal.token }
       );
-      this.setState({ users: users.data });
+      this.setState({ users: users.data, isLoading: false });
+      
     } catch (error) {
-      this.setState({ error });
+      if (axios.isCancel(error)) {
+        console.log('Error: ', error.message); // => prints: Api is being canceled
+      } else {
+        this.setState({ isLoading: false });
+      }
     }
   }
+
+  componentWillUnmount() {
+    this.signal.cancel("Api is being canceled");
+  }
+
   render() {
     const { users } = this.state;
     if (!users) {
       return null;
     }
     return (
-      <div>
+      <ul>
+        Dashboard
         {users.map(user => (
-          <ul>
-            <li key={user.id}>{user.username}</li>
-          </ul>
+          <li key={user.id}>{user.username}</li>
         ))}
-      </div>
+      </ul>
     );
   }
 }

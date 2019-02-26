@@ -3,7 +3,15 @@ import { Link, withRouter } from "react-router-dom";
 import axios from "axios";
 
 class Login extends Component {
-  state = { username: "", password: "", error: null, user: null };
+  signal = axios.CancelToken.source();
+
+  state = {
+    username: "",
+    password: "",
+    error: null,
+    user: null,
+    isLoading: false
+  };
 
   handleChange = e => {
     e.persist();
@@ -16,22 +24,40 @@ class Login extends Component {
   handleLogin = async e => {
     e.preventDefault();
 
+    // move this to axios config module
+    const login = axios.create({
+      withCredentials: true
+    });
+
     const { username, password } = this.state;
+
     try {
-      const user = await axios.post("http://localhost:8000/api/login", {
+      this.setState({ isLoading: true });
+
+      const user = await login.post("http://localhost:4000/api/login", {
         username,
         password
       });
-      console.log(user.data);
-      localStorage.setItem("jwt", user.data.jwt);
 
+      this.setState({
+        user: user.data,
+        username: "",
+        password: "",
+        isLoading: false
+      });
       this.props.history.push("/");
-
-      this.setState({ user: user.data, username: "", password: "" });
     } catch (error) {
-      this.setState(error);
+      if (axios.isCancel(error)) {
+        console.log("Error: ", error.message); // => prints: Api is being canceled
+      } else {
+        this.setState({ isLoading: false });
+      }
     }
   };
+
+  componentWillUnmount() {
+    this.signal.cancel("Api is being canceled");
+  }
 
   render() {
     const { user } = this.state;

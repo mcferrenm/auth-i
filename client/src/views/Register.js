@@ -26,11 +26,10 @@ class Register extends Component {
       if (password !== confirmPw) {
         throw Error("Passwords don't match");
       }
-      const user = await axios.post("http://localhost:8000/api/register", {
+      const user = await axios.post("http://localhost:4000/api/register", {
         username,
         password
       });
-      console.log(user.data);
       this.setState({
         user: user.data,
         username: "",

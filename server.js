@@ -32,7 +32,10 @@ const sessionConfig = {
 // Global Middleware
 server.use(express.json());
 server.use(helmet());
-server.use(cors());
+server.use(cors({
+  credentials: true,
+  origin: true
+ }));
 server.use(session(sessionConfig));
 
 // Local Middleware
@@ -48,7 +51,7 @@ async function restricted(req, res, next) {
 server.use("/api/restricted", restricted);
 
 // Routes
-server.get("/api/restricted/users", restricted, async (req, res) => {
+server.get("/api/restricted/users", async (req, res) => {
   try {
     const users = await Users.find();
     res.status(200).json(users);
