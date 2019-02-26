@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require('path');
 const helmet = require("helmet");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
@@ -39,6 +40,8 @@ server.use(
   })
 );
 server.use(session(sessionConfig));
+// Serve static files from the React app
+server.use(express.static(path.join(__dirname, 'client/build')));
 
 // Local Middleware
 
@@ -133,8 +136,8 @@ server.get("/api/logout", async (req, res) => {
   }
 });
 
-server.get("/", async (req, res) => {
-  res.send("welcome to auth API");
+server.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
 
 module.exports = server;

@@ -4,10 +4,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon index.js"
+    "start": "node index.js",
+    "server": "nodemon index.js",
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "concurrently": "^4.1.0",
     "connect-session-knex": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
@@ -17,6 +19,7 @@
     "sqlite3": "^4.0.6"
   },
   "devDependencies": {
+    "dotenv": "^6.2.0",
     "knex-cleaner": "^1.1.4",
     "nodemon": "^1.18.10"
   },

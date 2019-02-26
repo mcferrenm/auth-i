@@ -16,7 +16,7 @@ class Dashboard extends Component {
       });
 
       const users = await usersList.get(
-        "http://localhost:4000/api/restricted/users",
+        "/api/restricted/users",
         { cancelToken: this.signal.token }
       );
       this.setState({ users: users.data, isLoading: false });

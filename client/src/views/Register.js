@@ -36,7 +36,7 @@ class Register extends Component {
       if (password !== confirmPw) {
         throw Error("Passwords don't match");
       }
-      const user = await register.post("http://localhost:4000/api/register", {
+      const user = await register.post("/api/register", {
         username,
         password
       });

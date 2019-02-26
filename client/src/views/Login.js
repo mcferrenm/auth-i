@@ -34,7 +34,7 @@ class Login extends Component {
     try {
       this.setState({ isLoading: true });
 
-      const user = await login.post("http://localhost:4000/api/login", {
+      const user = await login.post("/api/login", {
         username,
         password
       });
