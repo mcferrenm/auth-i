@@ -95,6 +95,20 @@ server.post("/api/login", async (req, res) => {
   }
 });
 
+server.get('/api/logout', async (req, res) => {
+  if (req.session) {
+    req.session.destroy(err => {
+      if(!err) {
+        res.status(200).json({ message: "Good bye!"})
+      } else {
+        res.status(500).json({ error: "Error logging out user"})
+      }
+    })
+  } else {
+    res.end()
+  }
+});
+
 server.get("/", async (req, res) => {
   res.send("welcome to auth API");
 });
