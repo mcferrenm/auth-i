@@ -3,6 +3,8 @@ const helmet = require("helmet");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const session = require("express-session");
+const KnexSessionConfig = require("connect-session-knex")(session);
+const db = require("./data/knexConfig");
 
 const Users = require("./users/UsersModel");
 
@@ -17,7 +19,14 @@ const sessionConfig = {
   },
   httpOnly: true, // no js access through document.cookie
   resave: false, // don't resave unmodified
-  saveUninitialized: false // GDPR laws against setting cookies automatically w/o consent
+  saveUninitialized: false, // GDPR laws against setting cookies automatically w/o consent
+  store: new KnexSessionConfig({
+    knex: db,
+    tablename: "sessions",
+    sidfieldname: "sid",
+    createtable: true,
+    clearInterval: 1000 * 60 * 60 // 1 hour
+  })
 };
 
 // Global Middleware
@@ -95,17 +104,17 @@ server.post("/api/login", async (req, res) => {
   }
 });
 
-server.get('/api/logout', async (req, res) => {
+server.get("/api/logout", async (req, res) => {
   if (req.session) {
     req.session.destroy(err => {
-      if(!err) {
-        res.status(200).json({ message: "Good bye!"})
+      if (!err) {
+        res.status(200).json({ message: "Good bye!" });
       } else {
-        res.status(500).json({ error: "Error logging out user"})
+        res.status(500).json({ error: "Error logging out user" });
       }
-    })
+    });
   } else {
-    res.end()
+    res.end();
   }
 });
 
