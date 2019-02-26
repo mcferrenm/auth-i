@@ -5,7 +5,8 @@ module.exports = {
     return db("users");
   },
   add: function(credentials) {
-    return db("users").insert(credentials);
+    return db("users")
+      .insert(credentials);
   },
   findBy: function(filter) {
     return db("users")

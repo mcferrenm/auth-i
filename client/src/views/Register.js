@@ -2,12 +2,15 @@ import React, { Component } from "react";
 import axios from "axios";
 
 class Register extends Component {
+  signal = axios.CancelToken.source();
+
   state = {
     username: "",
     password: "",
     confirmPw: "",
     error: null,
-    user: null
+    user: null,
+    isLoading: false
   };
 
   handleChange = e => {
@@ -21,12 +24,19 @@ class Register extends Component {
   handleRegister = async e => {
     e.preventDefault();
 
+    // move this to axios config module
+    const register = axios.create({
+      withCredentials: true
+    });
+
     const { username, password, confirmPw } = this.state;
     try {
+      this.setState({ isLoading: true });
+
       if (password !== confirmPw) {
         throw Error("Passwords don't match");
       }
-      const user = await axios.post("http://localhost:4000/api/register", {
+      const user = await register.post("http://localhost:4000/api/register", {
         username,
         password
       });
@@ -36,10 +46,19 @@ class Register extends Component {
         password: "",
         confirmPw: ""
       });
+      this.props.history.push("/");
     } catch (error) {
-      this.setState(error);
+      if (axios.isCancel(error)) {
+        console.log("Error: ", error.message); // => prints: Api is being canceled
+      } else {
+        this.setState({ isLoading: false });
+      }
     }
   };
+
+  componentWillUnmount() {
+    this.signal.cancel("Api is being canceled");
+  }
 
   render() {
     const { user, error } = this.state;

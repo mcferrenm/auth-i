@@ -13,7 +13,7 @@ class App extends Component {
     return (
       <div className="App">
         {/* <ProtectedRoute exact path="/" component={Dashboard} /> */}
-
+        
         <Route exact path="/" component={Dashboard} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />

@@ -32,10 +32,12 @@ const sessionConfig = {
 // Global Middleware
 server.use(express.json());
 server.use(helmet());
-server.use(cors({
-  credentials: true,
-  origin: true
- }));
+server.use(
+  cors({
+    credentials: true,
+    origin: true
+  })
+);
 server.use(session(sessionConfig));
 
 // Local Middleware
@@ -79,7 +81,17 @@ server.post("/api/register", async (req, res) => {
       req.body.password = hash;
 
       const [id] = await Users.add(req.body);
-      res.status(201).json({ id });
+
+      const user = await Users.findBy({ id });
+
+      if (user) {
+        req.session.userId = user.id;
+        res.status(200).json({
+          message: `${user.username} has successfully registered`
+        });
+      } else {
+        res.status(401).json({ error: "Error registering user" });
+      }
     }
   } catch (error) {
     res.status(500).json({ error: "Error registering user" });
