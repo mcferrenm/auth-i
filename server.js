@@ -36,6 +36,7 @@ async function restricted(req, res, next) {
         // log error to db
         res.status(401).json({ error: "cant touch this" });
       } else {
+        req.decodedJwt = decodedToken;
         next();
       }
     });
@@ -56,15 +57,6 @@ server.get("/api/restricted/users", async (req, res) => {
   }
 });
 
-// server.get("/api/users", async (req, res) => {
-//   try {
-//     const users = await Users.find();
-//     res.status(200).json(users);
-//   } catch (error) {
-//     res.status(500).json({ error: "Error retrieving users" });
-//   }
-// });
-
 server.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -79,9 +71,10 @@ server.post("/api/register", async (req, res) => {
       const user = await Users.findBy({ id });
 
       if (user) {
-        req.session.userId = user.id;
+        const token = generateToken(user);
         res.status(200).json({
-          message: `${user.username} has successfully registered`
+          message: `Welcome ${user.username}, here is your token.`,
+          token
         });
       } else {
         res.status(401).json({ error: "Error registering user" });
@@ -123,20 +116,6 @@ server.post("/api/login", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Error logging in user" });
-  }
-});
-
-server.get("/api/logout", async (req, res) => {
-  if (req.session) {
-    req.session.destroy(err => {
-      if (!err) {
-        res.status(200).json({ message: "Good bye!" });
-      } else {
-        res.status(500).json({ error: "Error logging out user" });
-      }
-    });
-  } else {
-    res.end();
   }
 });
 
