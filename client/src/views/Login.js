@@ -45,6 +45,7 @@ class Login extends Component {
         password: "",
         isLoading: false
       });
+
       this.props.history.push("/");
     } catch (error) {
       if (axios.isCancel(error)) {
