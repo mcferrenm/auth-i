@@ -40,16 +40,16 @@ function restricted(req, res, next) {
 }
 
 function checkRoles(role) {
-  return function (req, res, next) {
-    if (req.decodedJwt.roles.includes(role)) {
+  return function(req, res, next) {
+    if (req.decodedJwt.roles[0].name === role) {
       next();
     } else {
-      res.status(403).json({ error: "Forbidden!"})
+      res.status(403).json({ error: "Forbidden!" });
     }
-  }
+  };
 }
 
-server.use("/api/restricted", restricted, checkRoles('student'));
+server.use("/api/restricted", restricted, checkRoles("instructor"));
 
 // Routes
 server.get("/api/restricted/users", async (req, res) => {
@@ -58,6 +58,20 @@ server.get("/api/restricted/users", async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving users" });
+  }
+});
+
+server.get("/api/restricted/users/:id", async (req, res) => {
+  try {
+    const user = await Users.findBy({ id: req.params.id });
+    if (user) {
+      const roles = await Users.findRolesByUserId(req.params.id);
+
+      user.roles = roles;
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving user" });
   }
 });
 
@@ -93,7 +107,7 @@ function generateToken(user) {
   const payload = {
     subject: user.id,
     username: user.username,
-    roles: ['student']
+    roles: user.roles
   };
 
   const options = {
@@ -110,7 +124,11 @@ server.post("/api/login", async (req, res) => {
     } else {
       const user = await Users.findBy({ username });
       if (user && bcrypt.compareSync(password, user.password)) {
+        const roles = await Users.findRolesByUserId(user.id);
+        user.roles = roles;
+
         const token = generateToken(user);
+
         res.status(200).json({
           message: `Welcome ${user.username}, here is your token.`,
           token
