@@ -1,53 +1,44 @@
 const express = require("express");
-const path = require('path');
+const path = require("path");
 const helmet = require("helmet");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
-const session = require("express-session");
-const KnexSessionConfig = require("connect-session-knex")(session);
-const db = require("./data/knexConfig");
+const jwt = require("jsonwebtoken");
 
+const db = require("./data/knexConfig");
 const Users = require("./users/UsersModel");
 
 const server = express();
 
-const sessionConfig = {
-  name: "monkey",
-  secret: "my secret monkey secret",
-  cookie: {
-    maxAge: 1000 * 60 * 15, // 15 min
-    secure: false // https only!
-  },
-  httpOnly: true, // no js access through document.cookie
-  resave: false, // don't resave unmodified
-  saveUninitialized: false, // GDPR laws against setting cookies automatically w/o consent
-  store: new KnexSessionConfig({
-    knex: db,
-    tablename: "sessions",
-    sidfieldname: "sid",
-    createtable: true,
-    clearInterval: 1000 * 60 * 60 // 1 hour
-  })
-};
+const secret = process.env.JWT_SECRET || "IamNotMyThoughts";
 
 // Global Middleware
 server.use(express.json());
 server.use(helmet());
-server.use(
-  cors({
-    credentials: true,
-    origin: true
-  })
-);
-server.use(session(sessionConfig));
+// server.use(
+//   cors({
+//     credentials: true,
+//     origin: true
+//   })
+// );
+
 // Serve static files from the React app
-server.use(express.static(path.join(__dirname, 'client/build')));
+server.use(express.static(path.join(__dirname, "client/build")));
 
 // Local Middleware
 
 async function restricted(req, res, next) {
-  if (req.session && req.session.userId) {
-    next();
+  const token = req.headers.authorization;
+
+  if (token) {
+    jwt.verify(token, secret, (err, decodedToken) => {
+      if (err) {
+        // log error to db
+        res.status(401).json({ error: "cant touch this" });
+      } else {
+        next();
+      }
+    });
   } else {
     res.status(401).json({ message: "Not authorized" });
   }
@@ -101,6 +92,18 @@ server.post("/api/register", async (req, res) => {
   }
 });
 
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  };
+
+  const options = {
+    expiresIn: "1d"
+  };
+  return jwt.sign(payload, secret, options);
+}
+
 server.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -109,9 +112,10 @@ server.post("/api/login", async (req, res) => {
     } else {
       const user = await Users.findBy({ username });
       if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.userId = user.id;
+        const token = generateToken(user);
         res.status(200).json({
-          message: `Welcome ${user.username}`
+          message: `Welcome ${user.username}, here is your token.`,
+          token
         });
       } else {
         res.status(401).json({ message: "Invalid Credentials" });
@@ -136,8 +140,8 @@ server.get("/api/logout", async (req, res) => {
   }
 });
 
-server.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname+'/client/build/index.html'));
+server.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
 
 module.exports = server;
