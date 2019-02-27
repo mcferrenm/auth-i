@@ -15,19 +15,13 @@ const secret = process.env.JWT_SECRET || "IamNotMyThoughts";
 // Global Middleware
 server.use(express.json());
 server.use(helmet());
-// server.use(
-//   cors({
-//     credentials: true,
-//     origin: true
-//   })
-// );
 
 // Serve static files from the React app
 server.use(express.static(path.join(__dirname, "client/build")));
 
 // Local Middleware
 
-async function restricted(req, res, next) {
+function restricted(req, res, next) {
   const token = req.headers.authorization;
 
   if (token) {
@@ -45,7 +39,17 @@ async function restricted(req, res, next) {
   }
 }
 
-server.use("/api/restricted", restricted);
+function checkRoles(role) {
+  return function (req, res, next) {
+    if (req.decodedJwt.roles.includes(role)) {
+      next();
+    } else {
+      res.status(403).json({ error: "Forbidden!"})
+    }
+  }
+}
+
+server.use("/api/restricted", restricted, checkRoles('student'));
 
 // Routes
 server.get("/api/restricted/users", async (req, res) => {
@@ -88,7 +92,8 @@ server.post("/api/register", async (req, res) => {
 function generateToken(user) {
   const payload = {
     subject: user.id,
-    username: user.username
+    username: user.username,
+    roles: ['student']
   };
 
   const options = {
