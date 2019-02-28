@@ -33,7 +33,6 @@ class Login extends Component {
         username,
         password
       });
-      console.log(user);
       localStorage.setItem("jwt", user.data.token);
       localStorage.setItem("username", user.data.username);
 
