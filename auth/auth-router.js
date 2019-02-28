@@ -21,7 +21,8 @@ router.post("/register", async (req, res) => {
         const token = tokenService.generateToken(user);
         res.status(200).json({
           message: `Welcome ${user.username}, here is your token.`,
-          token
+          token,
+          username: user.username
         });
       } else {
         res.status(401).json({ error: "Error registering user" });
