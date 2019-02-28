@@ -36,7 +36,8 @@ class Register extends Component {
         password
       });
 
-      localStorage.setItem("jwt", user.data.token)
+      localStorage.setItem("jwt", user.data.token);
+      localStorage.setItem("username", user.data.username);
 
       this.setState({
         isLoading: false
@@ -58,7 +59,7 @@ class Register extends Component {
   render() {
     const { user, error } = this.state;
     if (error) {
-      return null
+      return null;
     }
     return (
       <div>
