@@ -15,7 +15,7 @@ class Dashboard extends Component {
         withCredentials: true,
         headers: {
           Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0Ijo0LCJ1c2VybmFtZSI6Ik1heCIsImlhdCI6MTU1MTI5OTc0NywiZXhwIjoxNTUxMzg2MTQ3fQ.K3Z3gsFClptUpmhjOI3Y5xe-nlORUPC7E4W0KkQFoso"
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjozLCJ1c2VybmFtZSI6IkRhdmUiLCJyb2xlcyI6W3sibmFtZSI6Imluc3RydWN0b3IiLCJyb2xlX2lkIjoxfV0sImlhdCI6MTU1MTMwNzk0MywiZXhwIjoxNTUxMzk0MzQzfQ.oNBV7u2RRsPxj1cHHYxsotEc5XH3vheNIom-tg0S5T8"
         }
       });
 
@@ -45,7 +45,9 @@ class Dashboard extends Component {
       <ul>
         Dashboard
         {users.map(user => (
-          <li key={user.id}>{user.username}</li>
+          <li key={user.id}>
+            <p>{user.username}</p>
+          </li>
         ))}
       </ul>
     );
