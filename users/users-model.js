@@ -1,12 +1,27 @@
 const db = require("../data/knexConfig");
 
 module.exports = {
-  find: function() {
-    return db("users");
+  get: function(id) {
+    let query = db("users");
+    if (id) {
+      query.where({ id }).first();
+      const promises = [query, this.findRolesByUserId(id)];
+
+      return Promise.all(promises).then(function(results) {
+        let [user, roles] = results;
+
+        user.roles = roles;
+
+        return user;
+      });
+    }
+
+    return query;
   },
   add: function(credentials) {
     return db("users").insert(credentials);
   },
+  // Combine with get
   findBy: function(filter) {
     return db("users")
       .where(filter)
