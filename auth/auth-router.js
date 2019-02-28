@@ -2,7 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 
 const Users = require("../users/users-model");
-const tokenService = require('./token-service');
+const tokenService = require("./token-service");
 
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -48,7 +48,8 @@ router.post("/login", async (req, res) => {
 
         res.status(200).json({
           message: `Welcome ${user.username}, here is your token.`,
-          token
+          token,
+          username: user.username
         });
       } else {
         res.status(401).json({ message: "Invalid Credentials" });

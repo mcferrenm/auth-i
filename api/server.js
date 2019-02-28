@@ -1,5 +1,4 @@
 const express = require("express");
-const path = require("path");
 
 const configureMiddleware = require("./middleware");
 const authRouter = require("../auth/auth-router");
@@ -13,10 +12,6 @@ configureMiddleware(server);
 
 // Routes
 server.use("/api/auth", authRouter);
-server.use("/api/users", restricted, checkRoles("student"), usersRouter);
-
-server.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"));
-});
+server.use("/api/users", restricted, usersRouter);
 
 module.exports = server;

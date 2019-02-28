@@ -24,25 +24,20 @@ class Login extends Component {
   handleLogin = async e => {
     e.preventDefault();
 
-    // move this to axios config module
-    const login = axios.create({
-      withCredentials: true
-    });
-
     const { username, password } = this.state;
 
     try {
       this.setState({ isLoading: true });
 
-      const user = await login.post("/api/login", {
+      const user = await axios.post("/api/auth/login", {
         username,
         password
       });
+      console.log(user);
+      localStorage.setItem("jwt", user.data.token);
+      localStorage.setItem("username", user.data.username);
 
       this.setState({
-        user: user.data,
-        username: "",
-        password: "",
         isLoading: false
       });
 

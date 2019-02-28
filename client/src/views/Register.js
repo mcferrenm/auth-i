@@ -24,11 +24,6 @@ class Register extends Component {
   handleRegister = async e => {
     e.preventDefault();
 
-    // move this to axios config module
-    const register = axios.create({
-      withCredentials: true
-    });
-
     const { username, password, confirmPw } = this.state;
     try {
       this.setState({ isLoading: true });
@@ -36,15 +31,15 @@ class Register extends Component {
       if (password !== confirmPw) {
         throw Error("Passwords don't match");
       }
-      const user = await register.post("/api/register", {
+      const user = await axios.post("/api/auth/register", {
         username,
         password
       });
+
+      localStorage.setItem("jwt", user.data.token)
+
       this.setState({
-        user: user.data,
-        username: "",
-        password: "",
-        confirmPw: ""
+        isLoading: false
       });
       this.props.history.push("/");
     } catch (error) {
@@ -63,7 +58,7 @@ class Register extends Component {
   render() {
     const { user, error } = this.state;
     if (error) {
-      return <p>{error}</p>;
+      return null
     }
     return (
       <div>
